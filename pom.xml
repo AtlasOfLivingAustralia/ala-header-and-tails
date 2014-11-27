@@ -8,7 +8,7 @@
     <description>ALA Header and Tails</description>
     <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
     <scm>
-        <developerConnection>scm:svn:https://ala-bie.googlecode.com/svn/trunk/ala-header-and-tails/</developerConnection>
+        <developerConnection>scm:git:https://github.com/AtlasOfLivingAustralia/ala-header-and-tails.git</developerConnection>
     </scm>
     <dependencies>
         <!-- Sun's JSP API-->
@@ -51,14 +51,27 @@
 		</dependency>
     </dependencies>
 
+    <repositories>
+      <repository>
+	<id>ala-repo</id>
+	<name>ala-repository</name>
+	<url>http://nexus.ala.org.au/content/repositories/releases/</url>
+      </repository>
+    </repositories>
+
     <distributionManagement>
       <repository>
-        <id>ala-repository</id>
-        <uniqueVersion>false</uniqueVersion>
-        <url>scp://maven.ala.org.au/data/maven</url>
+        <id>ala-repo</id>
+        <name>Internal Releases</name>
+        <url>http://nexus.ala.org.au/content/repositories/releases/</url>
       </repository>
+      <snapshotRepository>
+        <id>ala-repo</id>
+        <name>Internal Releases</name>
+        <url>http://nexus.ala.org.au/content/repositories/snapshots/</url>
+      </snapshotRepository>
     </distributionManagement>
-    
+
     <build>
         <plugins>
             <plugin>
