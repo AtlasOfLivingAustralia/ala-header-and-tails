@@ -37,6 +37,7 @@ public class FooterMenuTag extends TagSupport {
     private static final long serialVersionUID = -6406031197753714478L;
     protected static Logger logger = Logger.getLogger(FooterMenuTag.class);
     protected String defaultCentralServer = "http://www.ala.org.au";
+    protected String defaultHeaderFooterServer = "http://www2.ala.org.au/commonui-bs2";
     private String returnUrlPath = "";
 
     /**
@@ -52,6 +53,11 @@ public class FooterMenuTag extends TagSupport {
         String centralServer = pageContext.getServletContext().getInitParameter("centralServer");
         if (centralServer==null){
             centralServer = defaultCentralServer;
+        }
+
+        String headerFooterServer = pageContext.getServletContext().getInitParameter("headerFooterServer");
+        if (headerFooterServer==null){
+            headerFooterServer = defaultHeaderFooterServer;
         }
 
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
@@ -70,7 +76,7 @@ public class FooterMenuTag extends TagSupport {
 
         String html = "<div>Footer placeholder</div>";
         try {
-            html = HeaderAndTailUtil.getFooter(centralServer);
+            html = HeaderAndTailUtil.getFooter(centralServer, headerFooterServer);
         } catch (Exception e1) {
             // TODO Auto-generated catch block
             //e1.printStackTrace();

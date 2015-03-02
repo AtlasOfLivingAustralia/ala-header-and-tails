@@ -38,6 +38,7 @@ public class BannerMenuTag extends TagSupport {
     
     private String returnUrlPath = "";
     
+    protected String defaultHeaderFooterServer = "http://www2.ala.org.au/commonui-bs2";
     protected String defaultCasServer = "https://auth.ala.org.au";
     protected String defaultCentralServer = "http://www.ala.org.au";
     protected String defaultSearchServer = "http://bie.ala.org.au";
@@ -66,6 +67,11 @@ public class BannerMenuTag extends TagSupport {
             String centralServer = pageContext.getServletContext().getInitParameter("centralServer");        
             if(centralServer==null){
                 centralServer = defaultCentralServer;
+            }
+
+            String headerFooterServer = pageContext.getServletContext().getInitParameter("headerFooterServer");
+            if(headerFooterServer==null){
+                headerFooterServer = defaultHeaderFooterServer;
             }
             
             String query = request.getParameter("q");
@@ -96,7 +102,7 @@ public class BannerMenuTag extends TagSupport {
                 loggedIn = AuthenticationCookieUtils.isUserLoggedIn(request);
             }
 
-            String html = HeaderAndTailUtil.getHeader(loggedIn, centralServer, casServer, searchServer, returnUrlPath, query);
+            String html = HeaderAndTailUtil.getHeader(loggedIn, headerFooterServer, centralServer, casServer, searchServer, returnUrlPath, query);
             
             pageContext.getOut().print(html);
         } catch (Exception e) {
