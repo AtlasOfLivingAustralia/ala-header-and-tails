@@ -20,9 +20,9 @@ import java.util.Properties;
  */
 public class HeaderAndTailUtil {
     // these fields can be overridden by a properties file (see below)
-    protected static String bannerHtmlUrl = "http://www2.ala.org.au/commonui/banner.html";
+    protected static String bannerHtmlUrl = "http://www2.ala.org.au/commonui-bs2/banner.html";
+    protected static String footerHtmlUrl = "http://www2.ala.org.au/commonui-bs2/footer.html";
     protected static String menuHtmlUrl = "http://www2.ala.org.au/commonui/menu.html";
-    protected static String footerHtmlUrl = "http://www2.ala.org.au/commonui/footer.html";
     protected static String googleAnalyticsHtmlUrl = "http://www2.ala.org.au/commonui/analytics.html";
     // dynamic fields
     protected PageContext pageContext;
@@ -32,7 +32,7 @@ public class HeaderAndTailUtil {
     protected String logoutControllerUrlPath = "";
     protected Boolean loggedIn = false;
     // template-style substitution variables
-    protected static String returnPathNullTag = "::returnPathNull::";
+    protected static String headerFooterServerTag = "::headerFooterServer::";
     protected static String centralServerTag = "::centralServer::";
     protected static String casServerTag = "::casServerR::";
     protected static String loginLogoutListItemTag = "::loginLogoutListItem::";
@@ -43,6 +43,7 @@ public class HeaderAndTailUtil {
     protected static String hideSearchFormTag = "id=\"header-search\"";
     // replacement variables
     protected static String googleAnalyticsKey = "UA-4355440-1";
+    protected static String defaultHeaderFooterServer = "http://www2.ala.org.au/commonui-bs2";
     protected static String defaultCasServer = "https://auth.ala.org.au";
     protected static String defaultCentralServer = "http://www.ala.org.au";
     protected static String defaultSearchServer = "http://bie.ala.org.au";
@@ -64,14 +65,8 @@ public class HeaderAndTailUtil {
             if (prop.getProperty("include.bannerUrl") != null) {
                 bannerHtmlUrl = prop.getProperty("include.bannerUrl");
             }
-            if (prop.getProperty("include.menuUrl") != null) {
-                menuHtmlUrl = prop.getProperty("include.menuUrl");
-            }
             if (prop.getProperty("include.footerUrl") != null) {
                 footerHtmlUrl = prop.getProperty("include.footerUrl");
-            }
-            if (prop.getProperty("include.googleAnalytics") != null) {
-                googleAnalyticsHtmlUrl = prop.getProperty("include.googleAnalytics");
             }
             in.close();
         } catch (Exception e) {
@@ -111,7 +106,6 @@ public class HeaderAndTailUtil {
         this.logoutControllerUrlPath = logoutControllerUrlPath;
         this.populateSearchBox = populateSearchBox;
         this.readPropsFromContext();
-        //logger.debug("defaultSearchServer: " +defaultSearchServer + " defaultCasServer: " +defaultCasServer + " defaultCentralServer: " + defaultCentralServer);
     }
 
     /**
@@ -138,19 +132,24 @@ public class HeaderAndTailUtil {
         // Read some properties from the web.xml file via servlet context
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
 
-        String searchServer = getPropertyValue("searchServerName");//pageContext.getServletContext().getInitParameter("searchServerName");
+        String searchServer = getPropertyValue("searchServerName");
         if (StringUtils.isNotBlank(searchServer)) {
             defaultSearchServer = searchServer;
         }
 
-        String casServer = getPropertyValue("casServerName");//pageContext.getServletContext().getInitParameter("casServerName");
+        String casServer = getPropertyValue("casServerName");
         if (StringUtils.isNotBlank(casServer)) {
             defaultCasServer = casServer;
         }
 
-        String centralServer = getPropertyValue("centralServer");//pageContext.getServletContext().getInitParameter("centralServer");
+        String centralServer = getPropertyValue("centralServer");
         if (StringUtils.isNotBlank(centralServer)) {
             defaultCentralServer = centralServer;
+        }
+
+        String headerFooterServer = getPropertyValue("headerFooterServer");
+        if (StringUtils.isNotBlank(headerFooterServer)) {
+            defaultHeaderFooterServer = headerFooterServer;
         }
 
         String query = request.getParameter("q");
@@ -197,7 +196,7 @@ public class HeaderAndTailUtil {
     public static String getHeader(boolean loggedIn, String returnUrlPath) throws Exception {
         String output = null;
         
-        output = getHeader(loggedIn, defaultCentralServer, defaultCasServer, defaultSearchServer, returnUrlPath, defaultQuery);
+        output = getHeader(loggedIn, defaultHeaderFooterServer, defaultCentralServer, defaultCasServer, defaultSearchServer, returnUrlPath, defaultQuery);
         
         return output;
     }
@@ -214,7 +213,7 @@ public class HeaderAndTailUtil {
             HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
             context = request.getContextPath();
         }
-        return getBanner(loggedIn, defaultCentralServer, defaultCasServer, defaultSearchServer, returnUrlPath, returnLogoutUrlPath, context + logoutControllerUrlPath, defaultQuery, populateSearchBox);
+        return getBanner(loggedIn, defaultHeaderFooterServer, defaultCentralServer, defaultCasServer, defaultSearchServer, returnUrlPath, returnLogoutUrlPath, context + logoutControllerUrlPath, defaultQuery, populateSearchBox);
     }
 
     /**
@@ -230,8 +229,8 @@ public class HeaderAndTailUtil {
      * @return
      * @throws Exception
      */
-    public static String getHeader(boolean loggedIn, String centralServer, String casServer, String searchServer, String returnUrlPath, String query) throws Exception {
-        return getHeader(loggedIn, centralServer, casServer, searchServer, returnUrlPath, null, query);
+    public static String getHeader(boolean loggedIn, String headerFooterServer, String centralServer, String casServer, String searchServer, String returnUrlPath, String query) throws Exception {
+        return getHeader(loggedIn, headerFooterServer, centralServer, casServer, searchServer, returnUrlPath, null, query);
     }
 
     /**
@@ -248,11 +247,10 @@ public class HeaderAndTailUtil {
      * @return
      * @throws Exception
      */
-    public static String getHeader(boolean loggedIn, String centralServer, String casServer, String searchServer, String returnUrlPath, String returnLogoutUrlPath, String query) throws Exception {
-        String banner = getBanner(loggedIn, centralServer, casServer, searchServer, returnUrlPath, returnLogoutUrlPath, "", query, true);
-        String menu = getMenu(centralServer);
-        
-        return banner + menu;
+    public static String getHeader(boolean loggedIn, String headerFooterServer, String centralServer, String casServer, String searchServer, String returnUrlPath, String returnLogoutUrlPath, String query) throws Exception {
+        String banner = getBanner(loggedIn, headerFooterServer, centralServer, casServer, searchServer, returnUrlPath, returnLogoutUrlPath, "", query, true);
+
+        return banner;
     }
 
     /**
@@ -269,7 +267,7 @@ public class HeaderAndTailUtil {
      * @return
      * @throws Exception
      */
-    public static String getBanner(boolean loggedIn, String centralServer, String casServer, String searchServer,
+    public static String getBanner(boolean loggedIn, String headerFooterServer, String centralServer, String casServer, String searchServer,
             String returnUrlPath, String returnLogoutUrlPath, String logoutControllerUrlPath, String query, Boolean populateSearchBox) throws Exception {
 
         logger.debug("getBanner params: loggedIn=" + loggedIn + ", centralServer=" + centralServer + ", casServer=" + casServer + ", searchServer=" + searchServer + ", returnUrlPath=" + returnUrlPath + ", returnLogoutUrlPath=" + returnLogoutUrlPath + ", logoutControllerUrlPath=" + logoutControllerUrlPath + ", query=" + query + ", populateSearchBox" + populateSearchBox);
@@ -293,6 +291,7 @@ public class HeaderAndTailUtil {
         // load the top banner
         String banner = GetWebContent.getInstance().getContent(bannerHtmlUrl);
 
+        banner = banner.replaceAll(headerFooterServerTag, headerFooterServer);
         banner = banner.replaceAll(centralServerTag, centralServer);
         banner = banner.replaceAll(casServerTag, casServer);
         banner = banner.replaceAll(loginLogoutListItemTag, loginLogoutListItem);
@@ -340,7 +339,7 @@ public class HeaderAndTailUtil {
      * @throws Exception
      */
     public String getFooterHtml() throws Exception {
-        return getFooterHtml(defaultCentralServer);
+        return getFooterHtml(defaultCentralServer, defaultHeaderFooterServer);
     }
 
     /**
@@ -360,10 +359,11 @@ public class HeaderAndTailUtil {
      * @return
      * @throws Exception
      */
-    public static String getFooterHtml(String centralServer) throws Exception {
+    public static String getFooterHtml(String centralServer, String headerFooterServer) throws Exception {
         String output = GetWebContent.getInstance().getContent(footerHtmlUrl);
         output = output.replaceAll(centralServerTag, centralServer);
-        
+        output = output.replaceAll(headerFooterServerTag, headerFooterServer);
+
         return output;
     }
 
@@ -386,10 +386,11 @@ public class HeaderAndTailUtil {
      *
      * @deprecated
      * @param centralServer
+     * @param headerFooterServer
      * @return
      * @throws Exception
      */
-    public static String getFooter(String centralServer) throws Exception {
-        return getFooterHtml(centralServer) + getFooterJs(centralServer);
+    public static String getFooter(String centralServer, String headerFooterServer) throws Exception {
+        return getFooterHtml(centralServer, headerFooterServer) + getFooterJs(centralServer);
     }
 }
