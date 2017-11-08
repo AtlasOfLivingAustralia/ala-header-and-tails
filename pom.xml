@@ -20,6 +20,9 @@
 		<developerConnection>scm:git:https://github.com/AtlasOfLivingAustralia/ala-header-and-tails.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+	<properties>
+		<targetJdk>1.7</targetJdk>
+        </properties>
 	<dependencies>
 		<!-- Sun's JSP API -->
 		<dependency>
